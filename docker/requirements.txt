@@ -1,0 +1,15 @@
+gym
+tensorboard
+torch
+protobuf
+torchvision
+pytorch-ignite
+tensorboardX
+tensorflow
+nltk
+pybullet
+ptan
+matplotlib
+scikit-learn
+pandas
+numpy
