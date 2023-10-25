@@ -3,11 +3,26 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
+from py_module.config import Configuration
+
 
 class PlotDesign(object):
 
     def __init__(self):
-        pass
+        self.config_obj = Configuration()
+
+    def plot_femto_RUL_prediction_plot(self, y_dict):
+        '''Training data plot'''
+        for idx, (exp, dataframe) in enumerate(y_dict.items()):
+        
+            plt.subplot(2,3,idx+1)
+            plt.plot(y_dict[exp][0], label="True")
+            plt.plot(y_dict[exp][1], label="Prediction")
+            plt.title(exp)
+            plt.legend()
+        
+        plt.tight_layout()
+        plt.show()
 
     def plot(self, samples, size=[4, 4]):
 

@@ -7,8 +7,6 @@ pytorch-ignite
 tensorboardX
 tensorflow
 nltk
-pybullet
-ptan
 matplotlib
 scikit-learn
 pandas

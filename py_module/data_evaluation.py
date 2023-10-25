@@ -8,7 +8,6 @@ from tensorflow import keras
 
 from py_module.config import Configuration
 from py_module.plot_module import PlotDesign
-from py_module.learning_definition import LearningDefinition
 from py_module.data_training import DataTraining
 
 class DataEvaluation(object):
@@ -16,56 +15,61 @@ class DataEvaluation(object):
     def __init__(self):
         self.config_obj = Configuration()
         self.plotting_obj = PlotDesign()
-        self.learing_def_obj = LearningDefinition()
         self.training_obj = DataTraining()
 
-    def data_evaluation_2008_PHM_Engine_data(self, data):
+    def femto_bearing_RUL_prediction(self, data_dict, model_path, testing_data_flag=False):
 
-        h5_path = self.config_obj.keras_model_path
-        model = keras.models.load_model(h5_path, compile=False)
-        # model.compile(optimizer = keras.optimizers.RMSprop(), loss = self.training_obj.custom_loss_function, metrics = ['mse'])
-        model.compile(optimizer = keras.optimizers.RMSprop(), loss = self.training_obj.custom_loss_function)
+        keys = [i for i in data_dict.keys()]
+        features_num = len(data_dict[keys[0]].columns.values)
+        num_lags = self.config_obj.lag_feature_number
 
-        def yield_unit_data(data, train_valid_units, epochs):
-            cnt = 0
-            while cnt < epochs:
-                which_unit = random.choice(train_valid_units)
-                unit_data = data[data['unit'] == which_unit]
-                cnt += 1
-                yield which_unit, unit_data
-        test_unit_num, test_data = [(test_unit_num, test_data) for (test_unit_num, test_data) in yield_unit_data(data, [i+1 for i in range(self.config_obj.test_engine_number)], 1)][0]
+        if testing_data_flag:
+            y_dict = {
+                "Bearing1_3":[],
+                "Bearing1_4":[],
+                "Bearing1_5":[],
+                "Bearing1_6":[],
+                "Bearing1_7":[],
+                "Bearing2_3":[],
+                "Bearing2_4":[],
+                "Bearing2_5":[],
+                "Bearing2_6":[],
+                "Bearing2_7":[],
+                "Bearing3_3":[],
+            }
+        else:
+            y_dict = {
+                "Bearing1_1":[],
+                "Bearing1_2":[],
+                "Bearing2_1":[],
+                "Bearing2_2":[],
+                "Bearing3_1":[],
+                "Bearing3_2":[],
+            }
+        model = keras.models.load_model(model_path, custom_objects={"custom_loss_function":self.training_obj.custom_loss_function})
 
-        # def custom_loss_function(y_true, y_pred):
-        #     squared_difference = tf.square(y_true - y_pred)
-        #     return tf.reduce_mean(squared_difference, axis=-1)
+        '''加入RUL欄位'''
+        dataframe_dict = self.training_obj.define_and_add_RUL_column(data_dict)
 
-        test_data = self.learing_def_obj.learning_define_2008_PHM_Engine_data(test_data)
-        print("以引擎 unit: {} 做為testing data.".format(test_unit_num))
+        for exp_name, data in dataframe_dict.items():
+            print("實驗:", exp_name, "進行Prediction...")
+            features_name = data.columns.values[:-1]
+            testing_data = data.copy()
+            '''2.正規化label以外的欄位'''
+            sc = StandardScaler()
+            testing_data[features_name] = sc.fit_transform(testing_data[features_name])
+            '''3.新增衍生欄位--> 滯後特徵(lag feature)'''
+            testing_data = self.training_obj.learning_define_femto_Bearing_data(testing_data, features_num, num_lags)
 
-        test_x = test_data.values[:,:-1]
-        test_y = test_data.values[:, -1]
+            '''4.將X, y分開'''
+            X = testing_data.values[:, :-1]
+            y = testing_data.values[:, -1]
 
-        test_x = test_x.reshape((test_x.shape[0], self.config_obj.previous_p_times + 1, self.config_obj.features_num))
-        predict_y = model.predict(test_x)
+            '''5.轉換為RNN輸入Shape'''
+            X = X.reshape((X.shape[0], num_lags+1, features_num))
+            predict_y = model.predict(X)
+            predict_y = np.clip(predict_y, a_min=0, a_max=2000)
 
-        # plotting
-        self.plotting_obj.plot_RUL_prediction(pred_y=predict_y, true_y=test_y, main_unit=test_unit_num)
-
-        # score calculate
-
-        # results = model.evaluate(test_x, test_y, batch_size=None)
-        # print("Evaluate Results:", results) # loss
-        scores = []
-        for test_unit_num in [i+1 for i in range(self.config_obj.test_engine_number)]:
-            
-            test_data = data[data['unit'] == test_unit_num]
-            test_data = self.learing_def_obj.learning_define_2008_PHM_Engine_data(test_data)
-            test_x = test_data.values[:,:-1]
-            test_y = test_data.values[:, -1]
-            test_x = test_x.reshape((test_x.shape[0], self.config_obj.previous_p_times + 1, self.config_obj.features_num))
-            results = model.evaluate(test_x, test_y, batch_size=None)
-            scores.append(results)
-            print('-----> Model has loss {} on engine {}'.format(results, test_unit_num))
-        print("Total average score:", np.mean(scores))
-
-
+            y_dict[exp_name].append(y)
+            y_dict[exp_name].append(predict_y)
+        return y_dict
