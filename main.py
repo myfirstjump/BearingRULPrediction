@@ -40,8 +40,8 @@ class FEMTOBearingRULPrediction(object):
         train_y_dict = self.evaluation_obj.femto_bearing_RUL_prediction(train_data_dict, model_path, testing_data_flag=False)
         self.plotting_obj.plot_femto_RUL_prediction_plot(train_y_dict, train_data_flag=True)
 
-        test_y_dict = self.evaluation_obj.femto_bearing_RUL_prediction(test_data_dict, model_path, testing_data_flag=True)
-        self.plotting_obj.plot_femto_RUL_prediction_plot(test_y_dict)
+        # test_y_dict = self.evaluation_obj.femto_bearing_RUL_prediction(test_data_dict, model_path, testing_data_flag=True)
+        # self.plotting_obj.plot_femto_RUL_prediction_plot(test_y_dict)
     
     def model_exploration(self, train_data_dict, test_data_dict):
         self.exploration_obj.femto_confidence_value_build(train_data_dict, test_data_dict)
@@ -57,7 +57,7 @@ def main_flow():
     main_obj.data_training(train_data_dict)
 
     '''Evaluation'''
-    # model_name = "RNN-model...."
+    # model_name = "RNN-model-Tue-Nov-7-150948-2023-test_output.h5"
     # main_obj.model_evaluation(train_data_dict, test_data_dict, model_name)
 
     '''Exploration'''

@@ -20,7 +20,7 @@ class Configuration(object):
 
         '''訓練參數'''
         self.lag_feature_number = 15
-        self.rul_upper_bound = 7.5
+        self.rul_upper_bound = 750
 
         
 
