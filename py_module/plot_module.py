@@ -11,18 +11,31 @@ class PlotDesign(object):
     def __init__(self):
         self.config_obj = Configuration()
 
-    def plot_femto_RUL_prediction_plot(self, y_dict):
+    def plot_femto_RUL_prediction_plot(self, y_dict, train_data_flag=False):
         '''Training data plot'''
-        for idx, (exp, dataframe) in enumerate(y_dict.items()):
-        
-            plt.subplot(2,3,idx+1)
-            plt.plot(y_dict[exp][0], label="True")
-            plt.plot(y_dict[exp][1], label="Prediction")
-            plt.title(exp)
-            plt.legend()
-        
-        plt.tight_layout()
-        plt.show()
+
+        if train_data_flag:
+            for idx, (exp, dataframe) in enumerate(y_dict.items()):
+            
+                plt.subplot(2,3,idx+1)
+                plt.plot(y_dict[exp][0], label="True")
+                plt.plot(y_dict[exp][1], label="Prediction")
+                plt.title(exp)
+                plt.legend()
+            
+            plt.tight_layout()
+            plt.show()
+        else:
+            for idx, (exp, dataframe) in enumerate(y_dict.items()):
+            
+                plt.subplot(3,4,idx+1)
+                plt.plot(y_dict[exp][0], label="True")
+                plt.plot(y_dict[exp][1], label="Prediction")
+                plt.title(exp)
+                plt.legend()
+            
+            plt.tight_layout()
+            plt.show()
 
     def plot(self, samples, size=[4, 4]):
 
@@ -58,3 +71,7 @@ class PlotDesign(object):
         plt.title("Engine Number # {} RUL Prediction".format(main_unit))
         plt.legend()
         plt.show()
+    
+    def plot_dataframe(self, dataframe_name, dataframe):
+        '''每個feature畫在一張圖'''
+        pass

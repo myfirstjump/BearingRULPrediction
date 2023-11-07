@@ -48,8 +48,8 @@ class DataReader(object):
                 "Bearing3_2":[],
             }
         
-        freq_x_bin = ([0, 200])
-        freq_y_bin = ([0, 200])
+        freq_x_bin = ([0, 200], [200, 1000])
+        freq_y_bin = ([0, 200], [200, 1000])
 
         new_dataframe = {k:None for k in new_data_dict.keys()}
 
@@ -63,77 +63,77 @@ class DataReader(object):
             data_path = [os.path.join(sub_folder_path, name) for name in os.listdir(sub_folder_path) if (os.path.isfile(os.path.join(sub_folder_path, name)) and ("acc" in name))]
             print("Training data {} folder: {}, total {} files.".format(idx, sub_folder, len(data_path)))
 
-        for each_idx, each_path in enumerate(data_path):
-            print(each_idx, each_path):
-            '''
-            vibration data is on col4, col5(note that if the temperature data is needed, the seperate sign is ';')
-            '''
-            if sub_folder in ["Bearing1_4"]: #Bearing1_4的分隔符為;不是,
-                data = pd.read_csv(each_path, header=None, sep=";", usecols=[4,5], names=['x', 'y'])
-            else:
-                data = pd.read_csv(each_path, header=None, usecols=[4,5], names=['x', 'y'])
-            '''2'''
-            feature_x = self.vibration_features_transformation(data['x'])
-            feature_y = self.vibration_features_transformation(data['y'])
+            for each_idx, each_path in enumerate(data_path):
+                print(each_idx, each_path)
+                '''
+                vibration data is on col4, col5(note that if the temperature data is needed, the seperate sign is ';')
+                '''
+                if sub_folder in ["Bearing1_4"]: #Bearing1_4的分隔符為;不是,
+                    data = pd.read_csv(each_path, header=None, sep=";", usecols=[4,5], names=['x', 'y'])
+                else:
+                    data = pd.read_csv(each_path, header=None, usecols=[4,5], names=['x', 'y'])
+                '''2'''
+                feature_x = self.vibration_features_transformation(data['x'])
+                feature_y = self.vibration_features_transformation(data['y'])
 
-            my_fft_x, freq_x = self.fourier_transformation(data['x'])
-            magnitude_x = self.avg_magnitude_by_bins(my_fft_x, freq_x, freq_x_bin)
-            my_fft_y, freq_y = self.fourier_transformation(data['y'])
-            magnitude_y = self.avg_magnitude_by_bins(my_fft_y, freq_y, freq_y_bin)
+                my_fft_x, freq_x = self.fourier_transformation(data['x'])
+                magnitude_x = self.avg_magnitude_by_bins(my_fft_x, freq_x, freq_x_bin)
+                my_fft_y, freq_y = self.fourier_transformation(data['y'])
+                magnitude_y = self.avg_magnitude_by_bins(my_fft_y, freq_y, freq_y_bin)
 
-            fft_features = []
-            for fea in magnitude_x:
-                fft_features.append(fea)
-            for fea in magnitude_y:
-                fft_features.append(fea)
-            
-            each_new_data_dict = {
-                'X_mean':0.0, 
-                'X_std' :0.0,
-                'X_rms':0.0, 
-                'X_crestf':0.0, 
-                'X_skew':0.0, 
-                'X_kurtosis':0.0, 
-                'X_max':0.0, 
-                'X_min':0.0, 
-                'X_p2p':0.0, 
-                'Y_mean':0.0, 
-                'Y_std':0.0, 
-                'Y_rms':0.0, 
-                'Y_crestf':0.0, 
-                'Y_skew':0.0, 
-                'Y_kurtosis':0.0, 
-                'Y_max':0.0,
-                'Y_min':0.0,
-                'Y_p2p':0.0,
-                'freqX_1':0.0,
-                'freqY_1':0.0,
-            }
+                fft_features = []
+                for fea in magnitude_x:
+                    fft_features.append(fea)
+                for fea in magnitude_y:
+                    fft_features.append(fea)
+                
+                each_new_data_dict = {
+                    'X_mean':0.0, 
+                    'X_std' :0.0,
+                    'X_rms':0.0, 
+                    'X_crestf':0.0, 
+                    'X_skew':0.0, 
+                    'X_kurtosis':0.0, 
+                    'X_max':0.0, 
+                    'X_min':0.0, 
+                    'X_p2p':0.0, 
+                    'Y_mean':0.0, 
+                    'Y_std':0.0, 
+                    'Y_rms':0.0, 
+                    'Y_crestf':0.0, 
+                    'Y_skew':0.0, 
+                    'Y_kurtosis':0.0, 
+                    'Y_max':0.0,
+                    'Y_min':0.0,
+                    'Y_p2p':0.0,
+                    'freqX_1':0.0,
+                    'freqY_1':0.0,
+                }
 
-            each_new_data_dict['X_mean'] = feature_x['mean']
-            each_new_data_dict['X_std'] = feature_x['std']
-            each_new_data_dict['X_rms'] = feature_x['rms']
-            each_new_data_dict['X_crestf'] = feature_x['crestf']
-            each_new_data_dict['X_skew'] = feature_x['skew']
-            each_new_data_dict['X_kurtosis'] = feature_x['kurtosis']
-            each_new_data_dict['X_max'] = feature_x['max']
-            each_new_data_dict['X_min'] = feature_x['min']
-            each_new_data_dict['X_p2p'] = feature_x['p2p']
+                each_new_data_dict['X_mean'] = feature_x['mean']
+                each_new_data_dict['X_std'] = feature_x['std']
+                each_new_data_dict['X_rms'] = feature_x['rms']
+                each_new_data_dict['X_crestf'] = feature_x['crestf']
+                each_new_data_dict['X_skew'] = feature_x['skew']
+                each_new_data_dict['X_kurtosis'] = feature_x['kurtosis']
+                each_new_data_dict['X_max'] = feature_x['max']
+                each_new_data_dict['X_min'] = feature_x['min']
+                each_new_data_dict['X_p2p'] = feature_x['p2p']
 
-            each_new_data_dict['Y_mean'] = feature_y['mean']
-            each_new_data_dict['Y_std'] = feature_y['std']
-            each_new_data_dict['Y_rms'] = feature_y['rms']
-            each_new_data_dict['Y_crestf'] = feature_y['crestf']
-            each_new_data_dict['Y_skew'] = feature_y['skew']
-            each_new_data_dict['Y_kurtosis'] = feature_y['kurtosis']
-            each_new_data_dict['Y_max'] = feature_y['max']
-            each_new_data_dict['Y_min'] = feature_y['min']
-            each_new_data_dict['Y_p2p'] = feature_y['p2p']
+                each_new_data_dict['Y_mean'] = feature_y['mean']
+                each_new_data_dict['Y_std'] = feature_y['std']
+                each_new_data_dict['Y_rms'] = feature_y['rms']
+                each_new_data_dict['Y_crestf'] = feature_y['crestf']
+                each_new_data_dict['Y_skew'] = feature_y['skew']
+                each_new_data_dict['Y_kurtosis'] = feature_y['kurtosis']
+                each_new_data_dict['Y_max'] = feature_y['max']
+                each_new_data_dict['Y_min'] = feature_y['min']
+                each_new_data_dict['Y_p2p'] = feature_y['p2p']
 
-            each_new_data_dict['freqX_1'] = fft_features[0]
-            each_new_data_dict['freqY_1'] = fft_features[1]
+                each_new_data_dict['freqX_1'] = fft_features[0]
+                each_new_data_dict['freqY_1'] = fft_features[2]
 
-            new_data_dict[sub_folder].append(each_new_data_dict)
+                new_data_dict[sub_folder].append(each_new_data_dict)
 
         for each_exp in new_dataframe.keys():
             new_dataframe[each_exp] = pd.DataFrame.from_dict(new_data_dict[each_exp])
@@ -151,7 +151,7 @@ class DataReader(object):
         file_path_list = []
 
         train_exp = ["Bearing1_1", "Bearing1_2", "Bearing2_1", "Bearing2_2", "Bearing3_1", "Bearing3_2"]
-        test_exp = ["Bearing1_3", "Bearing1_4", "Bearing1_5", "Bearing1_6", "Bearing1_7", "Bearing2_3", "Bearing2_4", "Bearing2_5", "Bearing2_6", "Bearing12_7", "Bearing3_3"]
+        test_exp = ["Bearing1_3", "Bearing1_4", "Bearing1_5", "Bearing1_6", "Bearing1_7", "Bearing2_3", "Bearing2_4", "Bearing2_5", "Bearing2_6", "Bearing2_7", "Bearing3_3"]
 
         for each_data_name in data_path_list:
             file_path = os.path.join(folder_path, each_data_name)

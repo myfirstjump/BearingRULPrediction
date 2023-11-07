@@ -4,7 +4,7 @@ from sklearn.preprocessing import StandardScaler
 from scipy import stats
 
 from py_module.config import Configuration
-from data_reader import DataReader
+from py_module.data_reader import DataReader
 
 class DataProprocessing(object):
 

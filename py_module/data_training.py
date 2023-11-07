@@ -2,8 +2,10 @@ import time
 import os
 import random
 import itertools
+import joblib
 
 import numpy as np
+import pandas as pd
 import tensorflow as tf
 from tensorflow import keras
 from sklearn import model_selection, preprocessing
@@ -31,33 +33,59 @@ class DataTraining(object):
         return time_record
 
     @sys_show_execution_time
-    def femto_bearing_RUL_prediction_training(self, features_dataframe):
+    def femto_bearing_RUL_prediction_training(self, features_dataframe_dict):
         '''
-        1.將數據加入RUL欄位值
-        2.建立預測模型並且訓練
-        3.輸出模型檔案(.h5, pickle)
+        1.get stationary feature data
+        2.輸出standard pickle
+        3.將數據加入RUL欄位值
+        4.建立預測模型並且訓練
+        5.輸出模型檔案(.h5, pickle)
         '''
         '''1'''
-        dataframe = self.define_and_add_RUL_column(features_dataframe)
-        '''2'''
+        for k in features_dataframe_dict.keys():
+            features_dataframe_dict[k] = features_dataframe_dict[k].pct_change(1,).iloc[1:, :] #iloc取1:是因為pct_change後1st row為nan
+            features_dataframe_dict[k] = features_dataframe_dict[k].reset_index(drop=True)
+            # print("Check exp {} for NAN: {}".format(k, features_dataframe_dict[k].isnull().values.any()))
+        
+        '''2 sc pickle初次需要建立，存入assets\\models'''
+        merged_df = pd.concat(features_dataframe_dict.values(), axis=0)
+        sc = preprocessing.StandardScaler()
+        allFeatures_norm = sc.fit_transform(merged_df)
+        sc_path = os.path.join(self.config_obj.model_folder, 'sc.pkl')
+        joblib.dump(sc, sc_path)
+        del merged_df
+        '''3'''
+        dataframe = self.define_and_add_RUL_column(features_dataframe_dict)
+        # '''Check if NaN values'''
+        # for k in dataframe.keys():
+        #     is_NaN = dataframe[k].isnull()
+        #     row_has_NaN = is_NaN.any(axis=1)
+        #     rows_with_NaN = dataframe[k][row_has_NaN]
+        #     print("Check exp {} for NaN: {}".format(k, dataframe[k].isnull().values.any()))
+        #     print(rows_with_NaN)
+        '''4'''
         epochs=10
         model_comment = "test_output"
         model, history = self.femto_bearing_training_RNN(dataframe, epochs=epochs, model_comment=model_comment)
         self.plot_obj.learning_curve(history)
         return model, history
     
-    def define_and_add_RUL_column(self, data_dict):
+    def define_and_add_RUL_column(self, data_dict, add_upper_bound=True):
+        if add_upper_bound:
+            RUL_upper_bound = self.config_obj.rul_upper_bound
+        else:
+            RUL_upper_bound = 999999
         for exp_idx, dataframe in data_dict.items():
             nrow = len(dataframe.index)
             exp_RUL = [i for i in range(0, nrow)][::-1]
             '''設定RUL上限值，因為無上限並不合理'''
-            exp_RUL = np.clip(exp_RUL, a_min=0, a_max=600)
+            exp_RUL = np.clip(exp_RUL, a_min=0, a_max=RUL_upper_bound)
             RUL = pd.Series(exp_RUL)
             data_dict[exp_idx]['RUL'] = RUL
         return data_dict
     
     def femto_bearing_training_RNN(self, dataframe_dict, epochs, model_comment):
-        exp_num = len(dataframe_dict)
+        
         features_num = len(dataframe_dict['Bearing1_1'].columns.values)-1 #-1為刪除RUL欄位
         num_lags = self.config_obj.lag_feature_number
 
@@ -84,19 +112,29 @@ class DataTraining(object):
         '''Training'''
         training_cnt = 0
         my_history = {'train_loss':[], 'valid_loss':[]}
+
+        '''以k-fold切割數據'''
+        exp_num = len(dataframe_dict)
+        exp_names = [name for name in dataframe_dict.keys()]
+
+        train_exp, valid_exp = model_selection.train_test_split(exp_names, test_size=0.2)
+        
         while True:
             training_cnt += 1
             if training_cnt > epochs:
                 break
             print("--------------------------------------------------- RNN Training Epoch {} ---------------------------------------------------".format(training_cnt))
-            for exp_name, data in dataframe_dict.items():
-                '''1.分割train/valid data'''
-                data_train0 = data.copy()
-                data_valid0 = dataframe_dict["Bearing3_2"].copy()
+            random.shuffle(train_exp)
+            for exp_name in train_exp:
+                '''1.建立train/valid data'''
+                data_train0 = dataframe_dict[exp_name].copy()
+                valid_exp_name = random.choice(valid_exp)
+                data_valid0 = dataframe_dict[valid_exp_name].copy()
                 '''2.正規化label以外的欄位'''
-                features_name = data.columns.values[:-1]
-                sc = preprocessing.StandardScaler()
-                data_train0[features_name] = sc.fit_transform(data_train0[features_name])
+                features_name = data_train0.columns.values[:-1]
+                sc_path = os.path.join(self.config_obj.model_folder, 'sc.pkl')
+                sc:preprocessing.StandardScaler = joblib.load(sc_path)
+                data_train0[features_name] = sc.transform(data_train0[features_name])
                 data_valid0[features_name] = sc.transform(data_valid0[features_name])
                 '''3.新增衍生欄位 --> 滯候特徵(lag feature)'''
                 data_train = self.learing_define_femto_Bearing_data(data_train0, features_num, num_lags)
