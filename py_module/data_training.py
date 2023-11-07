@@ -98,10 +98,10 @@ class DataTraining(object):
         model.add(keras.layers.GRU(64, activation='elu', input_shape=(num_lags+1, features_num), return_sequences=True))
         model.add(keras.layers.BatchNormalization())
         model.add(keras.layers.Dropout(rate=dropout_rate))
-        model.add(keras.layers.GRU(32, activation='elu', input_shape=(num_lags+1, features_num), return_sequences=True))
+        model.add(keras.layers.GRU(32, activation='elu', input_shape=(num_lags+1, features_num)))
         model.add(keras.layers.BatchNormalization())
         model.add(keras.layers.Dropout(rate=dropout_rate))
-        model.add(keras.layers.Dense(16, activation='elu', input_shape=(num_lags+1, features_num), return_sequences=True))
+        model.add(keras.layers.Dense(16, activation='elu', input_shape=(num_lags+1, features_num)))
         model.add(keras.layers.BatchNormalization())
         model.add(keras.layers.Dropout(rate=dropout_rate))
         model.add(keras.layers.Dense(1))
@@ -137,8 +137,8 @@ class DataTraining(object):
                 data_train0[features_name] = sc.transform(data_train0[features_name])
                 data_valid0[features_name] = sc.transform(data_valid0[features_name])
                 '''3.新增衍生欄位 --> 滯候特徵(lag feature)'''
-                data_train = self.learing_define_femto_Bearing_data(data_train0, features_num, num_lags)
-                data_valid = self.learing_define_femto_Bearing_data(data_valid0, features_num, num_lags)
+                data_train = self.learning_define_femto_Bearing_data(data_train0, features_num, num_lags)
+                data_valid = self.learning_define_femto_Bearing_data(data_valid0, features_num, num_lags)
 
                 '''4.將X,y分開'''
                 train_x = data_train.values[:,:-1]
@@ -179,7 +179,7 @@ class DataTraining(object):
         # diff_vec = tf.map_fn(each_loss_apply, diff_vec)
 
         '''MSE'''
-        squared_difference = tf.square(y_true, y_pred)
+        squared_difference = tf.square(y_true - y_pred)
         loss = tf.reduce_mean(squared_difference, axis=-1)
 
         return loss
