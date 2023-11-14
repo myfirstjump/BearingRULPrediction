@@ -75,62 +75,62 @@ class DataEvaluation(object):
             
 
             '''Prediction adjustment'''
-            adjust_len = len(predict_y)
-            adjustment_vec = np.random.exponential(5, adjust_len) + np.random.randint(-100, -50, adjust_len)
+            # adjust_len = len(predict_y)
+            # adjustment_vec = np.random.exponential(5, adjust_len) + np.random.randint(-100, -50, adjust_len)
 
-            if adjust_len < 250:
-                adjustment_vec[0:150] += np.random.exponential(50, 150)
-                adjustment_vec[150:200] += (np.random.randint(-50, -30, 50) + np.random.exponential(50, 50))
-            elif adjust_len < 500:
-                adjustment_vec[0:150] += np.random.exponential(50, 150)
-                adjustment_vec[150:200] += (np.random.randint(-50, -30, 50) + np.random.exponential(50, 50))
-                l = len(adjustment_vec[200:])
-                adjustment_vec[200:] += (np.random.randint(-80, -60, l) + np.random.exponential(25, l))
-            elif adjust_len < 800:
-                adjustment_vec[0:150] += np.random.exponential(50, 150)
-                adjustment_vec[150:200] += (np.random.randint(-50, -30, 50) + np.random.exponential(50, 50))
-                adjustment_vec[200:450] += (np.random.randint(-80, -30, 250) + np.random.exponential(25, 250))
-                l = len(adjustment_vec[450:])
-                adjustment_vec[450:] += (np.random.randint(-80, -30, l) + np.random.exponential(25, l))
-            elif adjust_len < 1000:
-                adjustment_vec[0:150] += np.random.exponential(50, 150)
-                adjustment_vec[150:200] += (np.random.randint(-50, -30, 50) + np.random.exponential(50, 50))
-                adjustment_vec[200:450] += (np.random.randint(-80, -30, 250) + np.random.exponential(25, 250))
-                adjustment_vec[450:650] += (np.random.randint(-80, -30, 200) + np.random.exponential(16, 200))
-                l = len(adjustment_vec[650:])
-                adjustment_vec[650:] += (np.random.randint(-80, -30, l) + np.random.exponential(25, l))
-            elif adjust_len < 1500:
-                adjustment_vec[0:150] += np.random.exponential(50, 150)
-                adjustment_vec[150:200] += (np.random.randint(-50, -30, 50) + np.random.exponential(50, 50))
-                adjustment_vec[200:650] += (np.random.randint(-80, -30, 450) + np.random.exponential(25, 450))
-                adjustment_vec[650:1000] += (np.random.randint(-120, -80, 350) + np.random.exponential(45, 350))
-                adjustment_vec[1000:1400] += (np.random.randint(-50, -30, 400) + np.random.exponential(25, 400))
-                l = len(adjustment_vec[1400:])
-                adjustment_vec[1400:] += (np.random.randint(0, 10, l) + np.random.exponential(0.1, l))
-            elif adjust_len < 1900:
-                adjustment_vec[0:150] += np.random.exponential(50, 150)
-                adjustment_vec[150:200] += (np.random.randint(-50, -30, 50) + np.random.exponential(50, 50))
-                adjustment_vec[200:650] += (np.random.randint(-80, -30, 450) + np.random.exponential(25, 450))
-                adjustment_vec[650:1000] += (np.random.randint(-120, -80, 350) + np.random.exponential(45, 350))
-                adjustment_vec[1000:1400] += (np.random.randint(-50, -30, 400) + np.random.exponential(25, 400))
-                adjustment_vec[1400:1600] += (np.random.randint(-50, -30, 200) + np.random.exponential(10, 200))
-                l = len(adjustment_vec[1600:])
-                adjustment_vec[1600:] += (np.random.randint(0, 10, l) + np.random.exponential(0.1, l))
-            else:
-                adjustment_vec[0:200] += np.random.exponential(0.5, 200)
-                adjustment_vec[200:400] += np.random.exponential(5.5, 200)
-                adjustment_vec[400:800] += np.random.exponential(10, 400)
-                adjustment_vec[800:1400] += (np.random.randint(-50, -30, 600) + np.random.exponential(50, 600))
-                adjustment_vec[1400:1900] += (np.random.randint(-80, 40, 500) + np.random.exponential(25, 500))
-                adjustment_vec[1900:2100] += (np.random.randint(-120, -90, 200) + np.random.exponential(40, 200))
-                adjustment_vec[2100:2200] += (np.random.randint(-120, -90, 100) + np.random.exponential(20, 100))
-                adjustment_vec[2200:2300] += (np.random.randint(-100, -50, 100) + np.random.exponential(10, 100))
+            # if adjust_len < 250:
+            #     adjustment_vec[0:150] += np.random.exponential(50, 150)
+            #     adjustment_vec[150:200] += (np.random.randint(-50, -30, 50) + np.random.exponential(50, 50))
+            # elif adjust_len < 500:
+            #     adjustment_vec[0:150] += np.random.exponential(50, 150)
+            #     adjustment_vec[150:200] += (np.random.randint(-50, -30, 50) + np.random.exponential(50, 50))
+            #     l = len(adjustment_vec[200:])
+            #     adjustment_vec[200:] += (np.random.randint(-80, -60, l) + np.random.exponential(25, l))
+            # elif adjust_len < 800:
+            #     adjustment_vec[0:150] += np.random.exponential(50, 150)
+            #     adjustment_vec[150:200] += (np.random.randint(-50, -30, 50) + np.random.exponential(50, 50))
+            #     adjustment_vec[200:450] += (np.random.randint(-80, -30, 250) + np.random.exponential(25, 250))
+            #     l = len(adjustment_vec[450:])
+            #     adjustment_vec[450:] += (np.random.randint(-80, -30, l) + np.random.exponential(25, l))
+            # elif adjust_len < 1000:
+            #     adjustment_vec[0:150] += np.random.exponential(50, 150)
+            #     adjustment_vec[150:200] += (np.random.randint(-50, -30, 50) + np.random.exponential(50, 50))
+            #     adjustment_vec[200:450] += (np.random.randint(-80, -30, 250) + np.random.exponential(25, 250))
+            #     adjustment_vec[450:650] += (np.random.randint(-80, -30, 200) + np.random.exponential(16, 200))
+            #     l = len(adjustment_vec[650:])
+            #     adjustment_vec[650:] += (np.random.randint(-80, -30, l) + np.random.exponential(25, l))
+            # elif adjust_len < 1500:
+            #     adjustment_vec[0:150] += np.random.exponential(50, 150)
+            #     adjustment_vec[150:200] += (np.random.randint(-50, -30, 50) + np.random.exponential(50, 50))
+            #     adjustment_vec[200:650] += (np.random.randint(-80, -30, 450) + np.random.exponential(25, 450))
+            #     adjustment_vec[650:1000] += (np.random.randint(-120, -80, 350) + np.random.exponential(45, 350))
+            #     adjustment_vec[1000:1400] += (np.random.randint(-50, -30, 400) + np.random.exponential(25, 400))
+            #     l = len(adjustment_vec[1400:])
+            #     adjustment_vec[1400:] += (np.random.randint(0, 10, l) + np.random.exponential(0.1, l))
+            # elif adjust_len < 1900:
+            #     adjustment_vec[0:150] += np.random.exponential(50, 150)
+            #     adjustment_vec[150:200] += (np.random.randint(-50, -30, 50) + np.random.exponential(50, 50))
+            #     adjustment_vec[200:650] += (np.random.randint(-80, -30, 450) + np.random.exponential(25, 450))
+            #     adjustment_vec[650:1000] += (np.random.randint(-120, -80, 350) + np.random.exponential(45, 350))
+            #     adjustment_vec[1000:1400] += (np.random.randint(-50, -30, 400) + np.random.exponential(25, 400))
+            #     adjustment_vec[1400:1600] += (np.random.randint(-50, -30, 200) + np.random.exponential(10, 200))
+            #     l = len(adjustment_vec[1600:])
+            #     adjustment_vec[1600:] += (np.random.randint(0, 10, l) + np.random.exponential(0.1, l))
+            # else:
+            #     adjustment_vec[0:200] += np.random.exponential(0.5, 200)
+            #     adjustment_vec[200:400] += np.random.exponential(5.5, 200)
+            #     adjustment_vec[400:800] += np.random.exponential(10, 400)
+            #     adjustment_vec[800:1400] += (np.random.randint(-50, -30, 600) + np.random.exponential(50, 600))
+            #     adjustment_vec[1400:1900] += (np.random.randint(-80, 40, 500) + np.random.exponential(25, 500))
+            #     adjustment_vec[1900:2100] += (np.random.randint(-120, -90, 200) + np.random.exponential(40, 200))
+            #     adjustment_vec[2100:2200] += (np.random.randint(-120, -90, 100) + np.random.exponential(20, 100))
+            #     adjustment_vec[2200:2300] += (np.random.randint(-100, -50, 100) + np.random.exponential(10, 100))
                 
-                l = len(adjustment_vec[2300:])
-                adjustment_vec[2300:] += (np.random.randint(0, 10, l) + np.random.exponential(0.1, l))
+            #     l = len(adjustment_vec[2300:])
+            #     adjustment_vec[2300:] += (np.random.randint(0, 10, l) + np.random.exponential(0.1, l))
             
-            predict_y = y + adjustment_vec
-            predict_y = np.clip(predict_y, a_min=0, a_max=RUL_upper_bound)
+            # predict_y = y + adjustment_vec
+            predict_y = np.clip(predict_y, a_min=0, a_max=99999)
 
             y_dict[exp_name].append(y)
             y_dict[exp_name].append(predict_y)
